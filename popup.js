@@ -1,0 +1,377 @@
+// Array of world capitals with their coordinates, countries, and default languages
+const capitals = [
+  { name: "Kabul", country: "Afghanistan", lat: 34.5281, lng: 69.1723, languages: ["ps", "fa"] },
+  { name: "Tirana", country: "Albania", lat: 41.3275, lng: 19.8187, languages: ["sq"] },
+  { name: "Algiers", country: "Algeria", lat: 36.7538, lng: 3.0588, languages: ["ar", "fr"] },
+  { name: "Andorra la Vella", country: "Andorra", lat: 42.5063, lng: 1.5218, languages: ["ca"] },
+  { name: "Luanda", country: "Angola", lat: -8.8383, lng: 13.2344, languages: ["pt"] },
+  { name: "Saint John's", country: "Antigua and Barbuda", lat: 17.1175, lng: -61.8456, languages: ["en"] },
+  { name: "Buenos Aires", country: "Argentina", lat: -34.6037, lng: -58.3816, languages: ["es"] },
+  { name: "Yerevan", country: "Armenia", lat: 40.1872, lng: 44.5152, languages: ["hy"] },
+  { name: "Canberra", country: "Australia", lat: -35.2809, lng: 149.1300, languages: ["en"] },
+  { name: "Vienna", country: "Austria", lat: 48.2082, lng: 16.3738, languages: ["de"] },
+  { name: "Baku", country: "Azerbaijan", lat: 40.4093, lng: 49.8671, languages: ["az"] },
+  { name: "Nassau", country: "Bahamas", lat: 25.0343, lng: -77.3963, languages: ["en"] },
+  { name: "Manama", country: "Bahrain", lat: 26.2285, lng: 50.5860, languages: ["ar"] },
+  { name: "Dhaka", country: "Bangladesh", lat: 23.8103, lng: 90.4125, languages: ["bn"] },
+  { name: "Bridgetown", country: "Barbados", lat: 13.1132, lng: -59.5988, languages: ["en"] },
+  { name: "Minsk", country: "Belarus", lat: 53.9045, lng: 27.5615, languages: ["be", "ru"] },
+  { name: "Brussels", country: "Belgium", lat: 50.8503, lng: 4.3517, languages: ["nl", "fr", "de"] },
+  { name: "Belmopan", country: "Belize", lat: 17.2534, lng: -88.7713, languages: ["en"] },
+  { name: "Porto-Novo", country: "Benin", lat: 6.4969, lng: 2.6283, languages: ["fr"] },
+  { name: "Thimphu", country: "Bhutan", lat: 27.4716, lng: 89.6386, languages: ["dz"] },
+  { name: "Sucre", country: "Bolivia", lat: -19.0196, lng: -65.2619, languages: ["es"] },
+  { name: "Sarajevo", country: "Bosnia and Herzegovina", lat: 43.8564, lng: 18.4131, languages: ["bs", "hr", "sr"] },
+  { name: "Gaborone", country: "Botswana", lat: -24.6282, lng: 25.9231, languages: ["en"] },
+  { name: "Brasília", country: "Brazil", lat: -15.7975, lng: -47.8919, languages: ["pt"] },
+  { name: "Bandar Seri Begawan", country: "Brunei", lat: 4.9031, lng: 114.9398, languages: ["ms"] },
+  { name: "Sofia", country: "Bulgaria", lat: 42.6977, lng: 23.3219, languages: ["bg"] },
+  { name: "Ouagadougou", country: "Burkina Faso", lat: 12.3714, lng: -1.5197, languages: ["fr"] },
+  { name: "Bujumbura", country: "Burundi", lat: -3.3731, lng: 29.9189, languages: ["fr"] },
+  { name: "Phnom Penh", country: "Cambodia", lat: 11.5564, lng: 104.9282, languages: ["km"] },
+  { name: "Yaoundé", country: "Cameroon", lat: 3.8480, lng: 11.5021, languages: ["fr", "en"] },
+  { name: "Ottawa", country: "Canada", lat: 45.4215, lng: -75.6972, languages: ["en", "fr"] },
+  { name: "Praia", country: "Cape Verde", lat: 14.9318, lng: -23.5087, languages: ["pt"] },
+  { name: "Bangui", country: "Central African Republic", lat: 4.3947, lng: 18.5582, languages: ["fr"] },
+  { name: "N'Djamena", country: "Chad", lat: 12.1348, lng: 15.0557, languages: ["fr", "ar"] },
+  { name: "Santiago", country: "Chile", lat: -33.4489, lng: -70.6693, languages: ["es"] },
+  { name: "Beijing", country: "China", lat: 39.9042, lng: 116.4074, languages: ["zh"] },
+  { name: "Bogotá", country: "Colombia", lat: 4.7110, lng: -74.0721, languages: ["es"] },
+  { name: "Moroni", country: "Comoros", lat: -11.6455, lng: 43.3333, languages: ["ar", "fr"] },
+  { name: "Kinshasa", country: "Democratic Republic of the Congo", lat: -4.4419, lng: 15.2663, languages: ["fr"] },
+  { name: "Brazzaville", country: "Republic of the Congo", lat: -4.2634, lng: 15.2429, languages: ["fr"] },
+  { name: "San José", country: "Costa Rica", lat: 9.9281, lng: -84.0907, languages: ["es"] },
+  { name: "Yamoussoukro", country: "Côte d'Ivoire", lat: 6.8276, lng: -5.2893, languages: ["fr"] },
+  { name: "Zagreb", country: "Croatia", lat: 45.8150, lng: 15.9819, languages: ["hr"] },
+  { name: "Havana", country: "Cuba", lat: 23.1135, lng: -82.3666, languages: ["es"] },
+  { name: "Nicosia", country: "Cyprus", lat: 35.1856, lng: 33.3823, languages: ["el", "tr"] },
+  { name: "Prague", country: "Czech Republic", lat: 50.0755, lng: 14.4378, languages: ["cs"] },
+  { name: "Copenhagen", country: "Denmark", lat: 55.6761, lng: 12.5683, languages: ["da"] },
+  { name: "Djibouti", country: "Djibouti", lat: 11.5721, lng: 43.1457, languages: ["fr", "ar"] },
+  { name: "Roseau", country: "Dominica", lat: 15.3010, lng: -61.3881, languages: ["en"] },
+  { name: "Santo Domingo", country: "Dominican Republic", lat: 18.4861, lng: -69.9312, languages: ["es"] },
+  { name: "Quito", country: "Ecuador", lat: -0.2299, lng: -78.5249, languages: ["es"] },
+  { name: "Cairo", country: "Egypt", lat: 30.0444, lng: 31.2357, languages: ["ar"] },
+  { name: "San Salvador", country: "El Salvador", lat: 13.6929, lng: -89.2182, languages: ["es"] },
+  { name: "Malabo", country: "Equatorial Guinea", lat: 3.7523, lng: 8.7747, languages: ["es", "fr"] },
+  { name: "Asmara", country: "Eritrea", lat: 15.3229, lng: 38.9251, languages: ["ti", "ar"] },
+  { name: "Tallinn", country: "Estonia", lat: 59.4370, lng: 24.7536, languages: ["et"] },
+  { name: "Addis Ababa", country: "Ethiopia", lat: 9.0320, lng: 38.7488, languages: ["am"] },
+  { name: "Suva", country: "Fiji", lat: -18.1416, lng: 178.4419, languages: ["en"] },
+  { name: "Helsinki", country: "Finland", lat: 60.1699, lng: 24.9384, languages: ["fi", "sv"] },
+  { name: "Paris", country: "France", lat: 48.8566, lng: 2.3522, languages: ["fr"] },
+  { name: "Libreville", country: "Gabon", lat: 0.4162, lng: 9.4167, languages: ["fr"] },
+  { name: "Banjul", country: "Gambia", lat: 13.4549, lng: -16.5790, languages: ["en"] },
+  { name: "Tbilisi", country: "Georgia", lat: 41.7151, lng: 44.8271, languages: ["ka"] },
+  { name: "Berlin", country: "Germany", lat: 52.5200, lng: 13.4050, languages: ["de"] },
+  { name: "Accra", country: "Ghana", lat: 5.6037, lng: -0.1870, languages: ["en"] },
+  { name: "Athens", country: "Greece", lat: 37.9838, lng: 23.7275, languages: ["el"] },
+  { name: "Saint George's", country: "Grenada", lat: 12.0500, lng: -61.7500, languages: ["en"] },
+  { name: "Guatemala City", country: "Guatemala", lat: 14.6349, lng: -90.5069, languages: ["es"] },
+  { name: "Conakry", country: "Guinea", lat: 9.6412, lng: -13.5784, languages: ["fr"] },
+  { name: "Bissau", country: "Guinea-Bissau", lat: 11.8817, lng: -15.6178, languages: ["pt"] },
+  { name: "Georgetown", country: "Guyana", lat: 6.8013, lng: -58.1553, languages: ["en"] },
+  { name: "Port-au-Prince", country: "Haiti", lat: 18.5944, lng: -72.3074, languages: ["fr", "ht"] },
+  { name: "Tegucigalpa", country: "Honduras", lat: 14.0723, lng: -87.1921, languages: ["es"] },
+  { name: "Budapest", country: "Hungary", lat: 47.4979, lng: 19.0402, languages: ["hu"] },
+  { name: "Reykjavík", country: "Iceland", lat: 64.1265, lng: -21.8174, languages: ["is"] },
+  { name: "New Delhi", country: "India", lat: 28.6139, lng: 77.2090, languages: ["hi", "en"] },
+  { name: "Jakarta", country: "Indonesia", lat: -6.2088, lng: 106.8456, languages: ["id"] },
+  { name: "Tehran", country: "Iran", lat: 35.6892, lng: 51.3890, languages: ["fa"] },
+  { name: "Baghdad", country: "Iraq", lat: 33.3152, lng: 44.3661, languages: ["ar"] },
+  { name: "Dublin", country: "Ireland", lat: 53.3498, lng: -6.2603, languages: ["en", "ga"] },
+  { name: "Jerusalem", country: "Israel", lat: 31.7683, lng: 35.2137, languages: ["he", "ar"] },
+  { name: "Rome", country: "Italy", lat: 41.9028, lng: 12.4964, languages: ["it"] },
+  { name: "Kingston", country: "Jamaica", lat: 17.9712, lng: -76.7926, languages: ["en"] },
+  { name: "Tokyo", country: "Japan", lat: 35.6762, lng: 139.6503, languages: ["ja"] },
+  { name: "Amman", country: "Jordan", lat: 31.9454, lng: 35.9284, languages: ["ar"] },
+  { name: "Astana", country: "Kazakhstan", lat: 51.1694, lng: 71.4491, languages: ["kk", "ru"] },
+  { name: "Nairobi", country: "Kenya", lat: -1.2921, lng: 36.8219, languages: ["sw", "en"] },
+  { name: "Tarawa", country: "Kiribati", lat: 1.3382, lng: 173.0176, languages: ["en"] },
+  { name: "Pristina", country: "Kosovo", lat: 42.6629, lng: 21.1655, languages: ["sq", "sr"] },
+  { name: "Kuwait City", country: "Kuwait", lat: 29.3759, lng: 47.9774, languages: ["ar"] },
+  { name: "Bishkek", country: "Kyrgyzstan", lat: 42.8746, lng: 74.5698, languages: ["ky", "ru"] },
+  { name: "Vientiane", country: "Laos", lat: 17.9757, lng: 102.6331, languages: ["lo"] },
+  { name: "Riga", country: "Latvia", lat: 56.9496, lng: 24.1052, languages: ["lv"] },
+  { name: "Beirut", country: "Lebanon", lat: 33.8938, lng: 35.5018, languages: ["ar", "fr"] },
+  { name: "Maseru", country: "Lesotho", lat: -29.3142, lng: 27.4833, languages: ["en"] },
+  { name: "Monrovia", country: "Liberia", lat: 6.3004, lng: -10.7969, languages: ["en"] },
+  { name: "Tripoli", country: "Libya", lat: 32.8872, lng: 13.1913, languages: ["ar"] },
+  { name: "Vaduz", country: "Liechtenstein", lat: 47.1410, lng: 9.5209, languages: ["de"] },
+  { name: "Vilnius", country: "Lithuania", lat: 54.6872, lng: 25.2797, languages: ["lt"] },
+  { name: "Luxembourg", country: "Luxembourg", lat: 49.6116, lng: 6.1319, languages: ["lb", "fr", "de"] },
+  { name: "Antananarivo", country: "Madagascar", lat: -18.8792, lng: 47.5079, languages: ["mg", "fr"] },
+  { name: "Lilongwe", country: "Malawi", lat: -13.9626, lng: 33.7741, languages: ["en"] },
+  { name: "Kuala Lumpur", country: "Malaysia", lat: 3.1390, lng: 101.6869, languages: ["ms"] },
+  { name: "Male", country: "Maldives", lat: 4.1755, lng: 73.5093, languages: ["dv"] },
+  { name: "Bamako", country: "Mali", lat: 12.6392, lng: -8.0029, languages: ["fr"] },
+  { name: "Valletta", country: "Malta", lat: 35.9042, lng: 14.5189, languages: ["mt", "en"] },
+  { name: "Majuro", country: "Marshall Islands", lat: 7.0897, lng: 171.3803, languages: ["en"] },
+  { name: "Nouakchott", country: "Mauritania", lat: 18.0735, lng: -15.9582, languages: ["ar"] },
+  { name: "Port Louis", country: "Mauritius", lat: -20.1609, lng: 57.5012, languages: ["en", "fr"] },
+  { name: "Mexico City", country: "Mexico", lat: 19.4326, lng: -99.1332, languages: ["es"] },
+  { name: "Palikir", country: "Micronesia", lat: 6.9147, lng: 158.1610, languages: ["en"] },
+  { name: "Chișinău", country: "Moldova", lat: 47.0105, lng: 28.8638, languages: ["ro"] },
+  { name: "Monaco", country: "Monaco", lat: 43.7384, lng: 7.4246, languages: ["fr"] },
+  { name: "Ulaanbaatar", country: "Mongolia", lat: 47.9184, lng: 106.9177, languages: ["mn"] },
+  { name: "Podgorica", country: "Montenegro", lat: 42.4304, lng: 19.2594, languages: ["sr"] },
+  { name: "Rabat", country: "Morocco", lat: 34.0209, lng: -6.8416, languages: ["ar", "fr"] },
+  { name: "Maputo", country: "Mozambique", lat: -25.9692, lng: 32.5732, languages: ["pt"] },
+  { name: "Naypyidaw", country: "Myanmar", lat: 19.7633, lng: 96.0785, languages: ["my"] },
+  { name: "Windhoek", country: "Namibia", lat: -22.5609, lng: 17.0658, languages: ["en"] },
+  { name: "Yaren", country: "Nauru", lat: -0.5467, lng: 166.9211, languages: ["en"] },
+  { name: "Kathmandu", country: "Nepal", lat: 27.7172, lng: 85.3240, languages: ["ne"] },
+  { name: "Amsterdam", country: "Netherlands", lat: 52.3676, lng: 4.9041, languages: ["nl"] },
+  { name: "Wellington", country: "New Zealand", lat: -41.2866, lng: 174.7756, languages: ["en"] },
+  { name: "Managua", country: "Nicaragua", lat: 12.1150, lng: -86.2362, languages: ["es"] },
+  { name: "Niamey", country: "Niger", lat: 13.5137, lng: 2.1098, languages: ["fr"] },
+  { name: "Abuja", country: "Nigeria", lat: 9.0820, lng: 8.6753, languages: ["en"] },
+  { name: "Pyongyang", country: "North Korea", lat: 39.0392, lng: 125.7625, languages: ["ko"] },
+  { name: "Skopje", country: "North Macedonia", lat: 42.0024, lng: 21.4361, languages: ["mk"] },
+  { name: "Oslo", country: "Norway", lat: 59.9139, lng: 10.7522, languages: ["no"] },
+  { name: "Muscat", country: "Oman", lat: 23.5880, lng: 58.3829, languages: ["ar"] },
+  { name: "Islamabad", country: "Pakistan", lat: 33.7294, lng: 73.0931, languages: ["ur", "en"] },
+  { name: "Ngerulmud", country: "Palau", lat: 7.5004, lng: 134.6243, languages: ["en"] },
+  { name: "East Jerusalem", country: "Palestine", lat: 31.7833, lng: 35.2167, languages: ["ar"] },
+  { name: "Panama City", country: "Panama", lat: 8.9824, lng: -79.5199, languages: ["es"] },
+  { name: "Port Moresby", country: "Papua New Guinea", lat: -9.4780, lng: 147.1500, languages: ["en"] },
+  { name: "Asunción", country: "Paraguay", lat: -25.2867, lng: -57.6217, languages: ["es"] },
+  { name: "Lima", country: "Peru", lat: -12.0464, lng: -77.0428, languages: ["es"] },
+  { name: "Manila", country: "Philippines", lat: 14.5995, lng: 120.9842, languages: ["en", "tl"] },
+  { name: "Warsaw", country: "Poland", lat: 52.2297, lng: 21.0122, languages: ["pl"] },
+  { name: "Lisbon", country: "Portugal", lat: 38.7223, lng: -9.1393, languages: ["pt"] },
+  { name: "Doha", country: "Qatar", lat: 25.2854, lng: 51.5310, languages: ["ar"] },
+  { name: "Bucharest", country: "Romania", lat: 44.4268, lng: 26.1025, languages: ["ro"] },
+  { name: "moscow", country: "russia", lat: 55.7558, lng: 37.6173, languages: ["ru"] },
+  { name: "Kigali", country: "Rwanda", lat: -1.9441, lng: 30.0619, languages: ["rw", "en", "fr"] },
+  { name: "Basseterre", country: "Saint Kitts and Nevis", lat: 17.2955, lng: -62.7250, languages: ["en"] },
+  { name: "Castries", country: "Saint Lucia", lat: 14.0101, lng: -60.9875, languages: ["en"] },
+  { name: "Kingstown", country: "Saint Vincent and the Grenadines", lat: 13.1587, lng: -61.2248, languages: ["en"] },
+  { name: "Apia", country: "Samoa", lat: -13.8507, lng: -171.7514, languages: ["sm", "en"] },
+  { name: "San Marino", country: "San Marino", lat: 43.9424, lng: 12.4578, languages: ["it"] },
+  { name: "São Tomé", country: "São Tomé and Príncipe", lat: 0.1864, lng: 6.6131, languages: ["pt"] },
+  { name: "Riyadh", country: "Saudi Arabia", lat: 24.7136, lng: 46.6753, languages: ["ar"] },
+  { name: "Dakar", country: "Senegal", lat: 14.7167, lng: -17.4677, languages: ["fr"] },
+  { name: "Belgrade", country: "Serbia", lat: 44.7866, lng: 20.4489, languages: ["sr"] },
+  { name: "Victoria", country: "Seychelles", lat: -4.6203, lng: 55.4513, languages: ["en", "fr"] },
+  { name: "Freetown", country: "Sierra Leone", lat: 8.4657, lng: -13.2317, languages: ["en"] },
+  { name: "Singapore", country: "Singapore", lat: 1.3521, lng: 103.8198, languages: ["en", "ms", "zh", "ta"] },
+  { name: "Bratislava", country: "Slovakia", lat: 48.1486, lng: 17.1077, languages: ["sk"] },
+  { name: "Ljubljana", country: "Slovenia", lat: 46.0569, lng: 14.5058, languages: ["sl"] },
+  { name: "Honiara", country: "Solomon Islands", lat: -9.4456, lng: 159.9729, languages: ["en"] },
+  { name: "Mogadishu", country: "Somalia", lat: 2.0469, lng: 45.3182, languages: ["so", "ar"] },
+  { name: "Pretoria", country: "South Africa", lat: -25.7479, lng: 28.2293, languages: ["en", "af", "zu"] },
+  { name: "Seoul", country: "South Korea", lat: 37.5665, lng: 126.9780, languages: ["ko"] },
+  { name: "Juba", country: "South Sudan", lat: 4.8594, lng: 31.5712, languages: ["en"] },
+  { name: "Madrid", country: "Spain", lat: 40.4168, lng: -3.7038, languages: ["es"] },
+  { name: "Colombo", country: "Sri Lanka", lat: 6.9271, lng: 79.8612, languages: ["si", "ta"] },
+  { name: "Khartoum", country: "Sudan", lat: 15.5007, lng: 32.5599, languages: ["ar"] },
+  { name: "Paramaribo", country: "Suriname", lat: 5.8520, lng: -55.2038, languages: ["nl"] },
+  { name: "Stockholm", country: "Sweden", lat: 59.3293, lng: 18.0686, languages: ["sv"] },
+  { name: "Bern", country: "Switzerland", lat: 46.9480, lng: 7.4474, languages: ["de", "fr", "it"] },
+  { name: "Damascus", country: "Syria", lat: 33.5138, lng: 36.2765, languages: ["ar"] },
+  { name: "Taipei", country: "Taiwan", lat: 25.0330, lng: 121.5654, languages: ["zh"] },
+  { name: "Dushanbe", country: "Tajikistan", lat: 38.5598, lng: 68.7870, languages: ["tg", "ru"] },
+  { name: "Dodoma", country: "Tanzania", lat: -6.1630, lng: 35.7516, languages: ["sw", "en"] },
+  { name: "Bangkok", country: "Thailand", lat: 13.7563, lng: 100.5018, languages: ["th"] },
+  { name: "Dili", country: "Timor-Leste", lat: -8.5586, lng: 125.5736, languages: ["pt"] },
+  { name: "Lomé", country: "Togo", lat: 6.1725, lng: 1.2314, languages: ["fr"] },
+  { name: "Nukuʻalofa", country: "Tonga", lat: -21.1393, lng: -175.2049, languages: ["to", "en"] },
+  { name: "Port of Spain", country: "Trinidad and Tobago", lat: 10.6918, lng: -61.2225, languages: ["en"] },
+  { name: "Tunis", country: "Tunisia", lat: 36.8065, lng: 10.1815, languages: ["ar", "fr"] },
+  { name: "Ankara", country: "Turkey", lat: 39.9334, lng: 32.8597, languages: ["tr"] },
+  { name: "Ashgabat", country: "Turkmenistan", lat: 37.9601, lng: 58.3261, languages: ["tk"] },
+  { name: "Funafuti", country: "Tuvalu", lat: -8.5211, lng: 179.1982, languages: ["en"] },
+  { name: "Kampala", country: "Uganda", lat: 0.3476, lng: 32.5825, languages: ["en", "sw"] },
+  { name: "Kyiv", country: "Ukraine", lat: 50.4547, lng: 30.5238, languages: ["uk"] },
+  { name: "Abu Dhabi", country: "United Arab Emirates", lat: 24.4539, lng: 54.3773, languages: ["ar"] },
+  { name: "London", country: "United Kingdom", lat: 51.5074, lng: -0.1278, languages: ["en"] },
+  { name: "Washington, D.C.", country: "United States", lat: 38.9072, lng: -77.0369, languages: ["en"] },
+  { name: "Montevideo", country: "Uruguay", lat: -34.9011, lng: -56.1645, languages: ["es"] },
+  { name: "Tashkent", country: "Uzbekistan", lat: 41.2995, lng: 69.2401, languages: ["uz", "ru"] },
+  { name: "Port Vila", country: "Vanuatu", lat: -17.7333, lng: 168.3273, languages: ["en", "fr"] },
+  { name: "Vatican City", country: "Vatican City", lat: 41.9022, lng: 12.4539, languages: ["it", "la"] },
+  { name: "Caracas", country: "Venezuela", lat: 10.4806, lng: -66.9036, languages: ["es"] },
+  { name: "Hanoi", country: "Vietnam", lat: 21.0285, lng: 105.8542, languages: ["vi"] },
+  { name: "Sana'a", country: "Yemen", lat: 15.3694, lng: 44.1910, languages: ["ar"] },
+  { name: "Lusaka", country: "Zambia", lat: -15.3875, lng: 28.3228, languages: ["en"] },
+  { name: "Harare", country: "Zimbabwe", lat: -17.8252, lng: 31.0335, languages: ["en"] }
+];
+
+// Language names mapping
+const languageNames = {
+  'en': 'English', 'es': 'Spanish', 'fr': 'French', 'de': 'German', 'it': 'Italian',
+  'pt': 'Portuguese', 'ru': 'Russian', 'zh': 'Chinese', 'ja': 'Japanese', 'ko': 'Korean',
+  'ar': 'Arabic', 'hi': 'Hindi', 'bn': 'Bengali', 'nl': 'Dutch', 'sv': 'Swedish',
+  'no': 'Norwegian', 'da': 'Danish', 'fi': 'Finnish', 'pl': 'Polish', 'tr': 'Turkish',
+  'el': 'Greek', 'he': 'Hebrew', 'th': 'Thai', 'vi': 'Vietnamese', 'id': 'Indonesian',
+  'ms': 'Malay', 'fa': 'Persian', 'ur': 'Urdu', 'uk': 'Ukrainian', 'ro': 'Romanian',
+  'cs': 'Czech', 'hu': 'Hungarian', 'bg': 'Bulgarian', 'hr': 'Croatian', 'sr': 'Serbian',
+  'sk': 'Slovak', 'sl': 'Slovenian', 'lt': 'Lithuanian', 'lv': 'Latvian', 'et': 'Estonian',
+  'sq': 'Albanian', 'mk': 'Macedonian', 'bs': 'Bosnian', 'ka': 'Georgian', 'hy': 'Armenian',
+  'az': 'Azerbaijani', 'kk': 'Kazakh', 'uz': 'Uzbek', 'ky': 'Kyrgyz', 'tg': 'Tajik',
+  'tk': 'Turkmen', 'mn': 'Mongolian', 'ne': 'Nepali', 'si': 'Sinhala', 'ta': 'Tamil',
+  'te': 'Telugu', 'kn': 'Kannada', 'ml': 'Malayalam', 'my': 'Burmese', 'km': 'Khmer',
+  'lo': 'Lao', 'am': 'Amharic', 'sw': 'Swahili', 'zu': 'Zulu', 'af': 'Afrikaans',
+  'is': 'Icelandic', 'ga': 'Irish', 'cy': 'Welsh', 'eu': 'Basque', 'ca': 'Catalan',
+  'gl': 'Galician', 'lb': 'Luxembourgish', 'mt': 'Maltese', 'ti': 'Tigrinya',
+  'so': 'Somali', 'rw': 'Kinyarwanda', 'mg': 'Malagasy', 'dv': 'Dhivehi', 'dz': 'Dzongkha',
+  'be': 'Belarusian', 'ps': 'Pashto', 'tl': 'Tagalog', 'ht': 'Haitian Creole',
+  'sm': 'Samoan', 'to': 'Tongan', 'la': 'Latin'
+};
+
+// State
+let selectedCapital = null;
+let sortedCapitals = [...capitals].sort((a, b) => a.country.localeCompare(b.country));
+
+// DOM elements
+const searchInput = document.getElementById('countrySearch');
+const dropdown = document.getElementById('dropdown');
+const languageSelect = document.getElementById('languageSelect');
+const saveBtn = document.getElementById('saveBtn');
+const currentSelection = document.getElementById('currentSelection');
+const currentLocationText = document.getElementById('currentLocationText');
+
+// Initialize popup
+document.addEventListener('DOMContentLoaded', async () => {
+  // Load saved selection
+  try {
+    const result = await chrome.storage.local.get(['selectedCapital', 'selectedLanguage']);
+    if (result.selectedCapital) {
+      const coords = JSON.parse(result.selectedCapital);
+      const capital = capitals.find(c => c.lat === coords.lat && c.lng === coords.lng);
+      if (capital) {
+        selectedCapital = capital;
+        searchInput.value = capital.country;
+        updateLanguageOptions(capital);
+        currentSelection.classList.add('show');
+        currentLocationText.textContent = `${capital.country} - ${capital.name}`;
+        saveBtn.disabled = false;
+
+        // Restore language selection
+        if (result.selectedLanguage) {
+          languageSelect.value = result.selectedLanguage;
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Error loading saved selection:', e);
+  }
+
+  // Search input handlers
+  searchInput.addEventListener('input', handleSearch);
+  searchInput.addEventListener('focus', handleSearch);
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
+      dropdown.classList.remove('show');
+    }
+  });
+
+  // Save button handler
+  saveBtn.addEventListener('click', handleSave);
+});
+
+// Handle search/filter
+function handleSearch() {
+  const query = searchInput.value.toLowerCase().trim();
+
+  if (query.length === 0) {
+    renderDropdown(sortedCapitals.slice(0, 10));
+    return;
+  }
+
+  const filtered = sortedCapitals.filter(capital =>
+    capital.country.toLowerCase().includes(query) ||
+    capital.name.toLowerCase().includes(query)
+  );
+
+  renderDropdown(filtered.slice(0, 10));
+}
+
+// Render dropdown items
+function renderDropdown(items) {
+  if (items.length === 0) {
+    dropdown.innerHTML = '<div class="dropdown-item">No results found</div>';
+    dropdown.classList.add('show');
+    return;
+  }
+
+  dropdown.innerHTML = items.map(capital => `
+    <div class="dropdown-item" data-country="${capital.country}">
+      <span class="country-name">${capital.country}</span>
+      <span class="capital-name">- ${capital.name}</span>
+    </div>
+  `).join('');
+
+  dropdown.classList.add('show');
+
+  // Add click handlers
+  dropdown.querySelectorAll('.dropdown-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const countryName = item.getAttribute('data-country');
+      selectCountry(countryName);
+    });
+  });
+}
+
+// Select a country
+function selectCountry(countryName) {
+  const capital = capitals.find(c => c.country === countryName);
+  if (!capital) return;
+
+  selectedCapital = capital;
+  searchInput.value = capital.country;
+  dropdown.classList.remove('show');
+
+  updateLanguageOptions(capital);
+
+  currentSelection.classList.add('show');
+  currentLocationText.textContent = `${capital.country} - ${capital.name}`;
+  saveBtn.disabled = false;
+}
+
+// Update language dropdown based on selected country
+function updateLanguageOptions(capital) {
+  languageSelect.innerHTML = '<option value="">Auto (browser default)</option>';
+
+  capital.languages.forEach(langCode => {
+    const langName = languageNames[langCode] || langCode.toUpperCase();
+    const option = document.createElement('option');
+    option.value = langCode;
+    option.textContent = langName;
+    languageSelect.appendChild(option);
+  });
+
+  // Auto-select first language
+  if (capital.languages.length > 0) {
+    languageSelect.value = capital.languages[0];
+  }
+}
+
+// Save location and language
+async function handleSave() {
+  if (!selectedCapital) return;
+
+  try {
+    const coords = { lat: selectedCapital.lat, lng: selectedCapital.lng };
+    const language = languageSelect.value;
+
+    await chrome.storage.local.set({
+      selectedCapital: JSON.stringify(coords),
+      selectedLanguage: language,
+      selectedCountry: selectedCapital.country
+    });
+
+    console.log('Location saved:', selectedCapital.country, 'Language:', language || 'auto');
+
+    // Send message to background script
+    await chrome.runtime.sendMessage({ action: 'applySpoof' });
+
+    // Close popup after a short delay
+    setTimeout(() => window.close(), 100);
+  } catch (error) {
+    console.error('Error saving location:', error);
+  }
+}

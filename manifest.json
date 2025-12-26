@@ -1,0 +1,40 @@
+{
+  "manifest_version": 3,
+  "name": "HennyClever - Location Spoofer",
+  "version": "1.0.0",
+  "description": "Spoof your geolocation to any world capital. Test location-based features, access region-specific content, and protect your privacy.",
+  "author": "HennyWill",
+  "permissions": [
+    "storage",
+    "scripting",
+    "tabs"
+  ],
+  "host_permissions": [
+    "https://www.google.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icon.png"
+  },
+  "icons": {
+    "128": "icon.png"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.google.com/*"],
+      "js": ["content-script.js"],
+      "run_at": "document_start",
+      "all_frames": false
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["inject.js"],
+      "matches": ["https://www.google.com/*"]
+    }
+  ]
+} 
