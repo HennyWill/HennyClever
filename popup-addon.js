@@ -37,6 +37,12 @@ const historyItems = document.getElementById('historyItems');
 const whitelistInput = document.getElementById('whitelistInput');
 const addWhitelistBtn = document.getElementById('addWhitelistBtn');
 const whitelistList = document.getElementById('whitelistList');
+const resetLocationBtn = document.getElementById('resetLocationBtn');
+
+// Domain validation
+function isValidDomain(str) {
+  return /^([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/.test(str);
+}
 
 // Initialize
 async function initNewFeatures() {
@@ -77,6 +83,9 @@ function setupEventListeners() {
     updateStatusIndicator(enabled);
     if (enabled) {
       await chrome.runtime.sendMessage({ action: 'applySpoof' });
+    } else {
+      await chrome.runtime.sendMessage({ action: 'disableSpoof' });
+      showToast('Reload open tabs to restore real location');
     }
   });
 
@@ -88,10 +97,42 @@ function setupEventListeners() {
   whitelistInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') addWhitelistBtn.click();
   });
+
+  // Reset location
+  if (resetLocationBtn) {
+    resetLocationBtn.addEventListener('click', resetLocation);
+  }
 }
 
 function updateStatusIndicator(enabled) {
   statusIndicator.style.background = enabled ? '#48bb78' : '#cbd5e0';
+}
+
+// Toast notification
+function showToast(message) {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+// Reset to real location
+async function resetLocation() {
+  await chrome.storage.local.remove(['selectedCapital', 'selectedLanguage', 'selectedCountry']);
+  await chrome.runtime.sendMessage({ action: 'disableSpoof' });
+
+  selectedCapital = null;
+  searchInput.value = '';
+  languageSelect.innerHTML = '<option value="">Auto (browser default)</option>';
+  currentSelection.classList.remove('show');
+  currentLocationText.textContent = 'None';
+  saveBtn.disabled = true;
+
+  showToast('Location reset. Reload tabs to use real location.');
 }
 
 function handleKeyboard(e) {
@@ -152,6 +193,10 @@ async function toggleFavorite(country) {
   }
   await chrome.storage.local.set({ favorites });
   renderHistory();
+  // Re-render dropdown if open to update star states
+  if (dropdown.classList.contains('show')) {
+    handleSearch();
+  }
 }
 
 function renderHistory() {
@@ -165,62 +210,102 @@ function renderHistory() {
   }
 
   historySection.style.display = 'block';
-  historyItems.innerHTML = allItems.map(item => {
+  historyItems.innerHTML = '';
+
+  allItems.forEach(item => {
     const flag = countryFlags[item.country] || '🌍';
     const isFav = favorites.includes(item.country);
-    return '<div class="history-item" data-country="' + item.country + '">' +
-      '<div class="history-item-content">' +
-      '<span class="history-flag">' + flag + '</span>' +
-      '<span class="history-name">' + item.country + '</span>' +
-      '</div>' +
-      '<button class="favorite-btn ' + (isFav ? 'active' : '') + '" data-country="' + item.country + '">' +
-      (isFav ? '⭐' : '☆') +
-      '</button></div>';
-  }).join('');
 
-  historyItems.querySelectorAll('.history-item').forEach(item => {
-    item.addEventListener('click', (e) => {
+    const row = document.createElement('div');
+    row.className = 'history-item';
+    row.dataset.country = item.country;
+
+    const content = document.createElement('div');
+    content.className = 'history-item-content';
+
+    const flagSpan = document.createElement('span');
+    flagSpan.className = 'history-flag';
+    flagSpan.textContent = flag;
+
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'history-name';
+    nameSpan.textContent = item.country;
+
+    content.appendChild(flagSpan);
+    content.appendChild(nameSpan);
+
+    const favBtn = document.createElement('button');
+    favBtn.className = 'favorite-btn' + (isFav ? ' active' : '');
+    favBtn.textContent = isFav ? '⭐' : '☆';
+    favBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleFavorite(item.country);
+    });
+
+    row.appendChild(content);
+    row.appendChild(favBtn);
+
+    row.addEventListener('click', (e) => {
       if (!e.target.classList.contains('favorite-btn')) {
-        selectCountry(item.dataset.country);
+        selectCountry(item.country);
       }
     });
-  });
 
-  historyItems.querySelectorAll('.favorite-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      toggleFavorite(btn.dataset.country);
-    });
+    historyItems.appendChild(row);
   });
 }
 
 async function addWhitelistDomain() {
-  const domain = whitelistInput.value.trim();
-  if (domain && !whitelist.includes(domain)) {
-    whitelist.push(domain);
-    await chrome.storage.local.set({ whitelist });
-    whitelistInput.value = '';
-    renderWhitelist();
-  }
-}
+  const domain = whitelistInput.value.trim().toLowerCase();
 
-function renderWhitelist() {
-  if (whitelist.length === 0) {
-    whitelistList.innerHTML = '<div style="color: #a0aec0; padding: 8px;">No domains added</div>';
+  if (!domain) return;
+
+  if (!isValidDomain(domain)) {
+    showToast('Invalid domain format. Example: example.com');
     return;
   }
 
-  whitelistList.innerHTML = whitelist.map(domain =>
-    '<div class="whitelist-item"><span>' + domain + '</span>' +
-    '<button class="remove-btn" data-domain="' + domain + '">Remove</button></div>'
-  ).join('');
+  if (whitelist.includes(domain)) {
+    showToast('Domain already in whitelist');
+    return;
+  }
 
-  whitelistList.querySelectorAll('.remove-btn').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      whitelist = whitelist.filter(d => d !== btn.dataset.domain);
+  whitelist.push(domain);
+  await chrome.storage.local.set({ whitelist });
+  whitelistInput.value = '';
+  renderWhitelist();
+}
+
+function renderWhitelist() {
+  whitelistList.innerHTML = '';
+
+  if (whitelist.length === 0) {
+    const empty = document.createElement('div');
+    empty.style.cssText = 'color: #a0aec0; padding: 8px;';
+    empty.textContent = 'No domains added';
+    whitelistList.appendChild(empty);
+    return;
+  }
+
+  whitelist.forEach(domain => {
+    const item = document.createElement('div');
+    item.className = 'whitelist-item';
+
+    const span = document.createElement('span');
+    span.textContent = domain;
+
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'remove-btn';
+    removeBtn.textContent = 'Remove';
+    removeBtn.addEventListener('click', async () => {
+      whitelist = whitelist.filter(d => d !== domain);
       await chrome.storage.local.set({ whitelist });
       renderWhitelist();
     });
+
+    item.appendChild(span);
+    item.appendChild(removeBtn);
+    whitelistList.appendChild(item);
   });
 }
 

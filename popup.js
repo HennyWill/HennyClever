@@ -255,7 +255,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }
   } catch (e) {
-    console.error('Error loading saved selection:', e);
+    // Storage read failed
   }
 
   // Search input handlers
@@ -292,28 +292,58 @@ function handleSearch() {
 
 // Render dropdown items
 function renderDropdown(items) {
+  dropdown.innerHTML = '';
+
   if (items.length === 0) {
-    dropdown.innerHTML = '<div class="dropdown-item">No results found</div>';
+    const empty = document.createElement('div');
+    empty.className = 'dropdown-item';
+    empty.textContent = 'No results found';
+    dropdown.appendChild(empty);
     dropdown.classList.add('show');
     return;
   }
 
-  dropdown.innerHTML = items.map(capital => `
-    <div class="dropdown-item" data-country="${capital.country}">
-      <span class="country-name">${capital.country}</span>
-      <span class="capital-name">- ${capital.name}</span>
-    </div>
-  `).join('');
+  items.forEach(capital => {
+    const item = document.createElement('div');
+    item.className = 'dropdown-item';
+    item.dataset.country = capital.country;
+
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'country-name';
+    nameSpan.textContent = capital.country;
+
+    const capitalSpan = document.createElement('span');
+    capitalSpan.className = 'capital-name';
+    capitalSpan.textContent = '- ' + capital.name;
+
+    // Favorite star button
+    const isFav = typeof favorites !== 'undefined' && favorites.includes(capital.country);
+    const favBtn = document.createElement('button');
+    favBtn.className = 'dropdown-fav-btn' + (isFav ? ' active' : '');
+    favBtn.textContent = isFav ? '⭐' : '☆';
+    favBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (typeof toggleFavorite === 'function') {
+        // Add to history first if not there, then toggle favorite
+        const cap = capitals.find(c => c.country === capital.country);
+        if (cap) {
+          addToHistory(cap).then(() => toggleFavorite(capital.country));
+        }
+      }
+    });
+
+    item.appendChild(nameSpan);
+    item.appendChild(capitalSpan);
+    item.appendChild(favBtn);
+
+    item.addEventListener('click', () => {
+      selectCountry(capital.country);
+    });
+
+    dropdown.appendChild(item);
+  });
 
   dropdown.classList.add('show');
-
-  // Add click handlers
-  dropdown.querySelectorAll('.dropdown-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const countryName = item.getAttribute('data-country');
-      selectCountry(countryName);
-    });
-  });
 }
 
 // Select a country
@@ -364,14 +394,12 @@ async function handleSave() {
       selectedCountry: selectedCapital.country
     });
 
-    console.log('Location saved:', selectedCapital.country, 'Language:', language || 'auto');
-
     // Send message to background script
     await chrome.runtime.sendMessage({ action: 'applySpoof' });
 
     // Close popup after a short delay
     setTimeout(() => window.close(), 100);
   } catch (error) {
-    console.error('Error saving location:', error);
+    // Save failed
   }
 }

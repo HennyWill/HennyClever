@@ -1,23 +1,19 @@
-// Country flag mapping
-const countryFlags = {
-  'United States': '🇺🇸', 'United Kingdom': '🇬🇧', 'Canada': '🇨🇦', 'Australia': '🇦🇺',
-  'Germany': '🇩🇪', 'France': '🇫🇷', 'Italy': '🇮🇹', 'Spain': '🇪🇸', 'Japan': '🇯🇵',
-  'China': '🇨🇳', 'India': '🇮🇳', 'Brazil': '🇧🇷', 'Mexico': '🇲🇽', 'russia': '💩',
-  'South Korea': '🇰🇷', 'Netherlands': '🇳🇱', 'Poland': '🇵🇱', 'Ukraine': '🇺🇦',
-  'Turkey': '🇹🇷', 'Argentina': '🇦🇷', 'Sweden': '🇸🇪', 'Norway': '🇳🇴', 'Finland': '🇫🇮'
-};
-
 // Listen for messages from popup
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'applySpoof') {
-    applySpoofToGoogleTabs();
+    applySpoofToMatchingTabs();
     updateBadge();
   } else if (message.action === 'disableSpoof') {
     chrome.action.setBadgeText({ text: '' });
+  } else if (message.action === 'getCountryFlag') {
+    chrome.storage.local.get('selectedCountry', (data) => {
+      sendResponse({ country: data.selectedCountry || null });
+    });
+    return true;
   }
 });
 
-// Listen for tab updates with whitelist check
+// Listen for tab updates — inject on Google and whitelisted sites
 chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
   if (!tab.url || changeInfo.status !== 'complete') return;
 
@@ -27,65 +23,80 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 
   if (!enabled) return;
 
-  // Check whitelist
-  if (whitelist.length > 0) {
-    const url = new URL(tab.url);
-    const domain = url.hostname;
-    const shouldSpoof = whitelist.some(wl => domain.includes(wl));
-    if (!shouldSpoof) return;
-  }
-
-  // Default: spoof on google.com
-  if (tab.url.startsWith('https://www.google.com/')) {
-    injectContentScript(tabId);
-  } else if (whitelist.length > 0) {
-    // Also inject on whitelisted sites
+  if (shouldInject(tab.url, whitelist)) {
     injectContentScript(tabId);
   }
 });
 
+// Determine if we should inject into this URL
+function shouldInject(url, whitelist) {
+  try {
+    const parsed = new URL(url);
+    const domain = parsed.hostname;
+
+    // Always inject on Google
+    if (domain === 'www.google.com' || domain.endsWith('.google.com')) {
+      return true;
+    }
+
+    // Inject on whitelisted domains
+    if (whitelist.length > 0) {
+      return whitelist.some(wl => domain === wl || domain.endsWith('.' + wl));
+    }
+
+    return false;
+  } catch (e) {
+    return false;
+  }
+}
+
 // Update badge with country flag
 async function updateBadge() {
-  const data = await chrome.storage.local.get('selectedCapital');
-  if (data.selectedCapital) {
-    try {
-      const coords = JSON.parse(data.selectedCapital);
-      // You can store country name separately for badge
-      const countryData = await chrome.storage.local.get('selectedCountry');
-      if (countryData.selectedCountry) {
-        const flag = countryFlags[countryData.selectedCountry] || '🌍';
-        chrome.action.setBadgeText({ text: flag });
-        chrome.action.setBadgeBackgroundColor({ color: '#667eea' });
-      }
-    } catch (e) {
-      console.error('Error updating badge:', e);
+  const data = await chrome.storage.local.get('selectedCountry');
+  if (data.selectedCountry) {
+    // Use first letter pair as badge (flag emoji too wide for badge)
+    const country = data.selectedCountry;
+    chrome.action.setBadgeText({ text: country.slice(0, 2).toUpperCase() });
+    chrome.action.setBadgeBackgroundColor({ color: '#667eea' });
+  }
+}
+
+// Apply spoof to all matching open tabs
+async function applySpoofToMatchingTabs() {
+  const data = await chrome.storage.local.get('whitelist');
+  const whitelist = data.whitelist || [];
+
+  const tabs = await chrome.tabs.query({});
+  for (const tab of tabs) {
+    if (tab.url && shouldInject(tab.url, whitelist)) {
+      injectContentScript(tab.id);
     }
   }
 }
 
-// Helper function to apply spoof to all Google tabs
-async function applySpoofToGoogleTabs() {
-  const tabs = await chrome.tabs.query({ url: 'https://www.google.com/*' });
-  for (const tab of tabs) {
-    await injectContentScript(tab.id);
-  }
-}
-
-// Helper function to inject content script
+// Inject content script into a tab
 async function injectContentScript(tabId) {
   try {
     await chrome.scripting.executeScript({
       target: { tabId },
       files: ['content-script.js']
     });
-    console.log('Content script injected into tab:', tabId);
-  } catch (error) {
-    console.error('Failed to inject content script:', error);
+  } catch (e) {
+    // Tab may not be injectable (chrome://, etc.)
   }
 }
 
-// Initial injection and badge update
-chrome.tabs.query({ url: 'https://www.google.com/*' }, (tabs) => {
-  tabs.forEach(tab => injectContentScript(tab.id));
-});
-updateBadge(); 
+// Initial injection and badge update on extension load
+(async () => {
+  const data = await chrome.storage.local.get(['spoofingEnabled', 'whitelist']);
+  if (data.spoofingEnabled === false) return;
+
+  const whitelist = data.whitelist || [];
+  const tabs = await chrome.tabs.query({});
+  for (const tab of tabs) {
+    if (tab.url && shouldInject(tab.url, whitelist)) {
+      injectContentScript(tab.id);
+    }
+  }
+  updateBadge();
+})();

@@ -97,15 +97,6 @@
       display: block;
     }
 
-    .dropdown-item {
-      padding: 9px 12px;
-      cursor: pointer;
-      color: #2d3748;
-      font-size: 13px;
-      transition: background 0.15s;
-      border-bottom: 1px solid #f7fafc;
-    }
-
     .dropdown-item:last-child {
       border-bottom: none;
     }
@@ -413,6 +404,82 @@
       background: #e2e8f0;
     }
 
+    .toast {
+      position: fixed;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2d3748;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 12px;
+      z-index: 9999;
+      animation: toastIn 0.3s ease-out;
+      white-space: nowrap;
+    }
+
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    .dropdown-fav-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      padding: 2px 4px;
+      opacity: 0.3;
+      transition: all 0.2s;
+      width: auto;
+      transform: none;
+      box-shadow: none;
+      margin-left: auto;
+    }
+
+    .dropdown-fav-btn:hover {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+
+    .dropdown-fav-btn.active {
+      opacity: 1;
+    }
+
+    .dropdown-item {
+      padding: 9px 12px;
+      cursor: pointer;
+      color: #2d3748;
+      font-size: 13px;
+      transition: background 0.15s;
+      border-bottom: 1px solid #f7fafc;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .reset-btn {
+      width: 100%;
+      padding: 8px;
+      background: #edf2f7;
+      color: #718096;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 500;
+      transition: all 0.2s;
+      margin-top: 8px;
+      box-shadow: none;
+    }
+
+    .reset-btn:hover {
+      background: #e2e8f0;
+      color: #4a5568;
+      transform: none;
+    }
+
     .whitelist-section {
       display: none;
       margin-top: 16px;
@@ -560,13 +627,14 @@
       </div>
 
       <button id="saveBtn" disabled>Save Location</button>
+      <button id="resetLocationBtn" class="reset-btn">Use Real Location</button>
     </div>
 
     <div class="tab-content" id="settings-tab">
       <div class="input-group">
         <label>Whitelist Mode</label>
         <div style="font-size: 12px; color: #718096; margin-bottom: 8px;">
-          Only spoof location on these domains (leave empty for all sites)
+          Add domains where spoofing should work (Google is always included)
         </div>
         <input
           type="text"
