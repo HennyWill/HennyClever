@@ -7,10 +7,14 @@
   "permissions": [
     "storage",
     "scripting",
-    "tabs"
+    "activeTab"
   ],
   "host_permissions": [
-    "<all_urls>"
+    "https://www.google.com/*"
+  ],
+  "optional_host_permissions": [
+    "https://*/*",
+    "http://*/*"
   ],
   "action": {
     "default_popup": "popup.html",

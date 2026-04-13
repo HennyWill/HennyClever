@@ -270,6 +270,16 @@ async function addWhitelistDomain() {
     return;
   }
 
+  // Request host permission for this domain
+  const granted = await chrome.permissions.request({
+    origins: ['https://' + domain + '/*', 'http://' + domain + '/*']
+  });
+
+  if (!granted) {
+    showToast('Permission denied for ' + domain);
+    return;
+  }
+
   whitelist.push(domain);
   await chrome.storage.local.set({ whitelist });
   whitelistInput.value = '';
@@ -300,6 +310,9 @@ function renderWhitelist() {
     removeBtn.addEventListener('click', async () => {
       whitelist = whitelist.filter(d => d !== domain);
       await chrome.storage.local.set({ whitelist });
+      chrome.permissions.remove({
+        origins: ['https://' + domain + '/*', 'http://' + domain + '/*']
+      });
       renderWhitelist();
     });
 
