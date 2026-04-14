@@ -634,7 +634,8 @@
       <div class="input-group">
         <label>Whitelist Mode</label>
         <div style="font-size: 12px; color: #718096; margin-bottom: 8px;">
-          Add domains where spoofing should work (Google is always included)
+          Add domains where spoofing should work (www.google.com is always included).
+          For non-.com Google TLDs (google.de, google.co.uk, etc.) add them here for SERP spoofing.
         </div>
         <input
           type="text"
@@ -644,6 +645,17 @@
         >
         <button id="addWhitelistBtn" class="settings-btn">Add Domain</button>
         <div class="whitelist-list" id="whitelistList"></div>
+      </div>
+
+      <div class="input-group" style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #e2e8f0;">
+        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+          <input type="checkbox" id="allSitesToggle" style="width: auto; margin: 0;">
+          <span>Modify Accept-Language on all sites</span>
+        </label>
+        <div style="font-size: 11px; color: #a0aec0; margin-top: 6px; line-height: 1.4;">
+          By default, only Google SERP params (gl, hl, uule) are spoofed.
+          Enable this to also modify the Accept-Language HTTP header on Google + whitelisted domains — useful for testing hreflang variants.
+        </div>
       </div>
     </div>
 
@@ -655,6 +667,7 @@
     </div>
   </div>
 
+  <script src="country-codes.js"></script>
   <script src="popup.js"></script>
   <script src="popup-addon.js"></script>
 </body>

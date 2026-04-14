@@ -362,19 +362,42 @@ function selectCountry(countryName) {
   saveBtn.disabled = false;
 }
 
-// Update language dropdown based on selected country
+// Update language dropdown: primary languages of country + all other languages
 function updateLanguageOptions(capital) {
-  languageSelect.innerHTML = '<option value="">Auto (browser default)</option>';
+  languageSelect.innerHTML = '';
 
-  capital.languages.forEach(langCode => {
-    const langName = languageNames[langCode] || langCode.toUpperCase();
+  const autoOpt = document.createElement('option');
+  autoOpt.value = '';
+  autoOpt.textContent = 'Auto (browser default)';
+  languageSelect.appendChild(autoOpt);
+
+  // Primary languages of the selected country
+  if (capital.languages.length > 0) {
+    const primaryGroup = document.createElement('optgroup');
+    primaryGroup.label = 'Primary languages of ' + capital.country;
+    capital.languages.forEach(langCode => {
+      const option = document.createElement('option');
+      option.value = langCode;
+      option.textContent = languageNames[langCode] || langCode.toUpperCase();
+      primaryGroup.appendChild(option);
+    });
+    languageSelect.appendChild(primaryGroup);
+  }
+
+  // All other languages (for hreflang testing — e.g. Czech user in Slovakia)
+  const allGroup = document.createElement('optgroup');
+  allGroup.label = 'All languages';
+  const primarySet = new Set(capital.languages);
+  Object.keys(languageNames).sort((a, b) => languageNames[a].localeCompare(languageNames[b])).forEach(langCode => {
+    if (primarySet.has(langCode)) return;
     const option = document.createElement('option');
     option.value = langCode;
-    option.textContent = langName;
-    languageSelect.appendChild(option);
+    option.textContent = languageNames[langCode];
+    allGroup.appendChild(option);
   });
+  languageSelect.appendChild(allGroup);
 
-  // Auto-select first language
+  // Auto-select primary language of the country
   if (capital.languages.length > 0) {
     languageSelect.value = capital.languages[0];
   }
@@ -387,14 +410,16 @@ async function handleSave() {
   try {
     const coords = { lat: selectedCapital.lat, lng: selectedCapital.lng };
     const language = languageSelect.value;
+    const countryCode = (typeof countryCodes !== 'undefined' && countryCodes[selectedCapital.country]) || null;
 
     await chrome.storage.local.set({
       selectedCapital: JSON.stringify(coords),
       selectedLanguage: language,
-      selectedCountry: selectedCapital.country
+      selectedCountry: selectedCapital.country,
+      selectedCountryCode: countryCode
     });
 
-    // Send message to background script
+    // Send message to background — UULE regenerated fresh in background from coords
     await chrome.runtime.sendMessage({ action: 'applySpoof' });
 
     // Close popup after a short delay

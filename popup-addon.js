@@ -38,6 +38,7 @@ const whitelistInput = document.getElementById('whitelistInput');
 const addWhitelistBtn = document.getElementById('addWhitelistBtn');
 const whitelistList = document.getElementById('whitelistList');
 const resetLocationBtn = document.getElementById('resetLocationBtn');
+const allSitesToggle = document.getElementById('allSitesToggle');
 
 // Domain validation
 function isValidDomain(str) {
@@ -46,7 +47,7 @@ function isValidDomain(str) {
 
 // Initialize
 async function initNewFeatures() {
-  const data = await chrome.storage.local.get(['favorites', 'locationHistory', 'whitelist', 'spoofingEnabled']);
+  const data = await chrome.storage.local.get(['favorites', 'locationHistory', 'whitelist', 'spoofingEnabled', 'allSitesMode']);
 
   favorites = data.favorites || [];
   locationHistory = data.locationHistory || [];
@@ -55,6 +56,10 @@ async function initNewFeatures() {
   if (data.spoofingEnabled !== undefined) {
     enableToggle.checked = data.spoofingEnabled;
     updateStatusIndicator(data.spoofingEnabled);
+  }
+
+  if (allSitesToggle) {
+    allSitesToggle.checked = data.allSitesMode === true;
   }
 
   renderHistory();
@@ -102,6 +107,17 @@ function setupEventListeners() {
   if (resetLocationBtn) {
     resetLocationBtn.addEventListener('click', resetLocation);
   }
+
+  // All Sites mode toggle
+  if (allSitesToggle) {
+    allSitesToggle.addEventListener('change', async () => {
+      await chrome.storage.local.set({ allSitesMode: allSitesToggle.checked });
+      await chrome.runtime.sendMessage({ action: 'whitelistChanged' });
+      showToast(allSitesToggle.checked
+        ? 'Accept-Language header enabled for all whitelisted sites'
+        : 'Accept-Language header disabled');
+    });
+  }
 }
 
 function updateStatusIndicator(enabled) {
@@ -122,7 +138,10 @@ function showToast(message) {
 
 // Reset to real location
 async function resetLocation() {
-  await chrome.storage.local.remove(['selectedCapital', 'selectedLanguage', 'selectedCountry']);
+  await chrome.storage.local.remove([
+    'selectedCapital', 'selectedLanguage', 'selectedCountry',
+    'selectedCountryCode'
+  ]);
   await chrome.runtime.sendMessage({ action: 'disableSpoof' });
 
   selectedCapital = null;
@@ -285,7 +304,7 @@ async function addWhitelistDomain() {
   whitelistInput.value = '';
   renderWhitelist();
 
-  // Inject into any already-open tabs of this newly whitelisted domain
+  // applySpoof injects content scripts + refreshes dNR rules (Accept-Language for new domain)
   await chrome.runtime.sendMessage({ action: 'applySpoof' });
   showToast('Spoofing enabled for ' + domain);
 }
@@ -317,6 +336,7 @@ function renderWhitelist() {
       chrome.permissions.remove({
         origins: ['https://' + domain + '/*', 'http://' + domain + '/*']
       });
+      await chrome.runtime.sendMessage({ action: 'whitelistChanged' });
       renderWhitelist();
     });
 
