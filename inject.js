@@ -6,21 +6,18 @@
   if (window.__hennyCleverActive) return;
   window.__hennyCleverActive = true;
 
-  let fakePosition = null;
+  let currentCoords = null;
   let fakeLanguage = null;
   const pendingCallbacks = [];
   const watchers = {};
   let watchId = 0;
 
-  const originalGetCurrentPosition = navigator.geolocation.getCurrentPosition.bind(navigator.geolocation);
-  const originalWatchPosition = navigator.geolocation.watchPosition.bind(navigator.geolocation);
-  const originalClearWatch = navigator.geolocation.clearWatch.bind(navigator.geolocation);
-
-  function buildPosition(lat, lng) {
+  function buildPosition() {
+    if (!currentCoords) return null;
     return {
       coords: {
-        latitude: lat,
-        longitude: lng,
+        latitude: currentCoords.lat,
+        longitude: currentCoords.lng,
         accuracy: 100,
         altitude: null,
         altitudeAccuracy: null,
@@ -31,24 +28,22 @@
     };
   }
 
-  // Override getCurrentPosition immediately — queue if coords not ready
+  // Override getCurrentPosition — queue if coords not ready
   navigator.geolocation.getCurrentPosition = function(success, error, options) {
-    if (fakePosition) {
-      setTimeout(() => success(fakePosition), 0);
+    if (currentCoords) {
+      setTimeout(() => success(buildPosition()), 0);
     } else {
       pendingCallbacks.push({ success, error });
     }
   };
 
-  // Override watchPosition — queue if coords not ready
+  // Override watchPosition — watchers are notified via HennyCleverInit listener
   navigator.geolocation.watchPosition = function(success, error, options) {
     const id = ++watchId;
-    if (fakePosition) {
-      setTimeout(() => success(fakePosition), 0);
-    } else {
-      pendingCallbacks.push({ success, error, watchId: id });
-    }
     watchers[id] = { success, error };
+    if (currentCoords) {
+      setTimeout(() => success(buildPosition()), 0);
+    }
     return id;
   };
 
@@ -57,36 +52,45 @@
     delete watchers[id];
   };
 
-  // Override language if provided
+  // Override language if provided (safe against non-configurable properties)
   function applyLanguageOverride(lang) {
     if (!lang) return;
-
-    Object.defineProperty(navigator, 'language', {
-      get: function() { return lang; },
-      configurable: true
-    });
-
-    Object.defineProperty(navigator, 'languages', {
-      get: function() { return [lang]; },
-      configurable: true
-    });
+    try {
+      Object.defineProperty(navigator, 'language', {
+        get: function() { return lang; },
+        configurable: true
+      });
+    } catch (e) {}
+    try {
+      Object.defineProperty(navigator, 'languages', {
+        get: function() { return [lang]; },
+        configurable: true
+      });
+    } catch (e) {}
   }
 
-  // Coordinates arrive via CustomEvent from content script
+  // Coordinates arrive via CustomEvent — may fire multiple times on location change
   window.addEventListener('HennyCleverInit', function(event) {
     const { lat, lng, lang } = event.detail;
-    fakePosition = buildPosition(lat, lng);
+    currentCoords = { lat, lng };
 
-    // Resolve all pending callbacks
+    // Resolve any pending callbacks from the initial wait
     pendingCallbacks.forEach(cb => {
-      if (cb.success) cb.success(fakePosition);
+      if (cb.success) cb.success(buildPosition());
     });
     pendingCallbacks.length = 0;
 
+    // Notify active watchers of new position
+    Object.values(watchers).forEach(w => {
+      if (w.success) {
+        try { w.success(buildPosition()); } catch (e) {}
+      }
+    });
+
     // Apply language override
-    if (lang) {
+    if (lang && lang !== fakeLanguage) {
       fakeLanguage = lang;
-      applyLanguageOverride(lang);
+      try { applyLanguageOverride(lang); } catch (e) {}
     }
-  }, { once: true });
+  });
 })();

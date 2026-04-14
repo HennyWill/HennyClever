@@ -284,6 +284,10 @@ async function addWhitelistDomain() {
   await chrome.storage.local.set({ whitelist });
   whitelistInput.value = '';
   renderWhitelist();
+
+  // Inject into any already-open tabs of this newly whitelisted domain
+  await chrome.runtime.sendMessage({ action: 'applySpoof' });
+  showToast('Spoofing enabled for ' + domain);
 }
 
 function renderWhitelist() {
