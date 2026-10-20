@@ -28,16 +28,19 @@ function generateUule(lat, lng) {
 // Message listener
 // ============================================================
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === 'applySpoof') {
-    applySpoofToMatchingTabs();
-    updateBadge();
-    refreshRulesFromStorage();
-  } else if (message.action === 'disableSpoof') {
-    chrome.action.setBadgeText({ text: '' });
-    removeAllRules();
-  } else if (message.action === 'whitelistChanged') {
-    refreshRulesFromStorage();
-  }
+  if (!['applySpoof', 'disableSpoof', 'whitelistChanged'].includes(message.action)) return;
+  (async () => {
+    if (message.action === 'disableSpoof') {
+      await removeAllRules();
+      await chrome.action.setBadgeText({text: ''});
+      await applySpoofToMatchingTabs();
+    } else {
+      await refreshRulesFromStorage();
+      await updateBadge();
+      await applySpoofToMatchingTabs();
+    }
+  })().then(() => sendResponse({ok: true}), error => sendResponse({ok: false, error: error.message}));
+  return true;
 });
 
 // ============================================================
@@ -79,9 +82,9 @@ function shouldInject(url, whitelist) {
 
 // Update badge with country code
 async function updateBadge() {
-  const data = await chrome.storage.local.get('selectedCountry');
-  if (data.selectedCountry) {
-    const country = data.selectedCountry;
+  const data = await chrome.storage.local.get(['selectedCountryCode', 'spoofingEnabled', 'selectedCapital']);
+  if (data.selectedCountryCode && data.selectedCapital && data.spoofingEnabled !== false) {
+    const country = data.selectedCountryCode;
     chrome.action.setBadgeText({ text: country.slice(0, 2).toUpperCase() });
     chrome.action.setBadgeBackgroundColor({ color: '#667eea' });
   } else {
@@ -216,7 +219,7 @@ async function refreshRulesFromStorage() {
       addRules
     });
   } catch (e) {
-    // Rule update failed — likely missing host permission
+    throw e;
   }
 }
 

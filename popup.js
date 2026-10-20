@@ -249,7 +249,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         saveBtn.disabled = false;
 
         // Restore language selection
-        if (result.selectedLanguage) {
+        if (typeof result.selectedLanguage === 'string') {
           languageSelect.value = result.selectedLanguage;
         }
       }
@@ -266,11 +266,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.addEventListener('click', (e) => {
     if (!searchInput.contains(e.target) && !dropdown.contains(e.target)) {
       dropdown.classList.remove('show');
+      searchInput.setAttribute('aria-expanded', 'false');
+      searchInput.removeAttribute('aria-activedescendant');
     }
   });
 
   // Save button handler
   saveBtn.addEventListener('click', handleSave);
+  languageSelect.addEventListener('change', () => { if (selectedCapital) handleSave(); });
 });
 
 // Handle search/filter
@@ -292,11 +295,13 @@ function handleSearch() {
 
 // Render dropdown items
 function renderDropdown(items) {
+  dropdownSelectedIndex = -1;
+  searchInput.setAttribute('aria-expanded', 'true');
   dropdown.innerHTML = '';
 
   if (items.length === 0) {
     const empty = document.createElement('div');
-    empty.className = 'dropdown-item';
+    empty.className = 'empty-result';
     empty.textContent = 'No results found';
     dropdown.appendChild(empty);
     dropdown.classList.add('show');
@@ -307,6 +312,8 @@ function renderDropdown(items) {
     const item = document.createElement('div');
     item.className = 'dropdown-item';
     item.dataset.country = capital.country;
+    item.setAttribute('role', 'option');
+    item.id = 'location-' + items.indexOf(capital);
 
     const nameSpan = document.createElement('span');
     nameSpan.className = 'country-name';
@@ -320,7 +327,8 @@ function renderDropdown(items) {
     const isFav = typeof favorites !== 'undefined' && favorites.includes(capital.country);
     const favBtn = document.createElement('button');
     favBtn.className = 'dropdown-fav-btn' + (isFav ? ' active' : '');
-    favBtn.textContent = isFav ? '⭐' : '☆';
+    favBtn.textContent = isFav ? '★' : '☆';
+    favBtn.setAttribute('aria-label', 'Favorite ' + capital.country);
     favBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       if (typeof toggleFavorite === 'function') {
@@ -354,12 +362,15 @@ function selectCountry(countryName) {
   selectedCapital = capital;
   searchInput.value = capital.country;
   dropdown.classList.remove('show');
+      searchInput.setAttribute('aria-expanded', 'false');
+      searchInput.removeAttribute('aria-activedescendant');
 
   updateLanguageOptions(capital);
 
   currentSelection.classList.add('show');
   currentLocationText.textContent = `${capital.country} - ${capital.name}`;
   saveBtn.disabled = false;
+  handleSave();
 }
 
 // Update language dropdown: primary languages of country + all other languages
@@ -420,11 +431,14 @@ async function handleSave() {
     });
 
     // Send message to background — UULE regenerated fresh in background from coords
-    await chrome.runtime.sendMessage({ action: 'applySpoof' });
+    const response = await chrome.runtime.sendMessage({ action: 'applySpoof' });
+    if (!response?.ok) throw new Error(response?.error || 'Could not apply rules');
 
-    // Close popup after a short delay
-    setTimeout(() => window.close(), 100);
+    document.getElementById('saveStatus').textContent = 'Applied. Reload open pages to update search results.';
+    saveBtn.hidden = true;
+    updateStatusIndicator(enableToggle.checked);
   } catch (error) {
-    // Save failed
+    document.getElementById('saveStatus').textContent = 'Could not apply location. Please retry.';
+    saveBtn.hidden = false;
   }
 }

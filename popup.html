@@ -1,621 +1,51 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>HennyClever</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      width: 340px;
-      min-height: 400px;
-      padding: 16px;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: #fff;
-    }
-
-    .container {
-      background: rgba(255, 255, 255, 0.95);
-      border-radius: 12px;
-      padding: 18px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    }
-
-    h1 {
-      font-size: 19px;
-      color: #2d3748;
-      margin-bottom: 6px;
-      font-weight: 600;
-    }
-
-    .subtitle {
-      font-size: 12px;
-      color: #718096;
-      margin-bottom: 16px;
-    }
-
-    .input-group {
-      margin-bottom: 14px;
-    }
-
-    label {
-      display: block;
-      font-size: 12px;
-      font-weight: 500;
-      color: #4a5568;
-      margin-bottom: 6px;
-    }
-
-    .search-wrapper {
-      position: relative;
-    }
-
-    #countrySearch {
-      width: 100%;
-      padding: 9px 12px;
-      font-size: 13px;
-      border: 2px solid #e2e8f0;
-      border-radius: 6px;
-      outline: none;
-      transition: all 0.2s;
-      background: #fff;
-      color: #2d3748;
-    }
-
-    #countrySearch:focus {
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-
-    #countrySearch::placeholder {
-      color: #a0aec0;
-    }
-
-    .dropdown {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      max-height: 200px;
-      overflow-y: auto;
-      background: #fff;
-      border: 2px solid #e2e8f0;
-      border-top: none;
-      border-radius: 0 0 8px 8px;
-      margin-top: -8px;
-      display: none;
-      z-index: 1000;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
-
-    .dropdown.show {
-      display: block;
-    }
-
-    .dropdown-item:last-child {
-      border-bottom: none;
-    }
-
-    .dropdown-item:hover {
-      background: #f7fafc;
-    }
-
-    .dropdown-item.selected {
-      background: #edf2f7;
-    }
-
-    .country-name {
-      font-weight: 500;
-    }
-
-    .capital-name {
-      color: #718096;
-      font-size: 12px;
-      margin-left: 4px;
-    }
-
-    select {
-      width: 100%;
-      padding: 9px 12px;
-      font-size: 13px;
-      border: 2px solid #e2e8f0;
-      border-radius: 6px;
-      outline: none;
-      background: #fff;
-      color: #2d3748;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    select:focus {
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-
-    .current-selection {
-      background: #f7fafc;
-      padding: 9px;
-      border-radius: 6px;
-      margin-bottom: 12px;
-      font-size: 12px;
-      color: #4a5568;
-      display: none;
-    }
-
-    .current-selection.show {
-      display: block;
-    }
-
-    .current-selection strong {
-      color: #2d3748;
-    }
-
-    button {
-      width: 100%;
-      padding: 11px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 600;
-      transition: all 0.2s;
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-    }
-
-    button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
-    }
-
-    button:active {
-      transform: translateY(0);
-    }
-
-    button:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .info-icon {
-      display: inline-block;
-      width: 14px;
-      height: 14px;
-      background: #667eea;
-      color: #fff;
-      border-radius: 50%;
-      text-align: center;
-      line-height: 14px;
-      font-size: 10px;
-      margin-left: 4px;
-      cursor: help;
-    }
-
-    .footer {
-      margin-top: 14px;
-      padding-top: 12px;
-      border-top: 1px solid #e2e8f0;
-      text-align: center;
-    }
-
-    .footer-text {
-      font-size: 11px;
-      color: #718096;
-      margin-bottom: 6px;
-    }
-
-    .coffee-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 7px 12px;
-      background: #FFDD00;
-      color: #000;
-      text-decoration: none;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 600;
-      transition: all 0.2s;
-      box-shadow: 0 2px 8px rgba(255, 221, 0, 0.3);
-    }
-
-    .coffee-link:hover {
-      background: #FFE94D;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(255, 221, 0, 0.4);
-    }
-
-    .status-indicator {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #48bb78;
-      margin-right: 6px;
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
-    }
-
-    @keyframes checkmark {
-      0% { transform: scale(0); opacity: 0; }
-      50% { transform: scale(1.2); }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    .save-success {
-      animation: checkmark 0.5s ease-out;
-    }
-
-    .history-section {
-      margin-bottom: 12px;
-    }
-
-    .history-header {
-      font-size: 12px;
-      font-weight: 500;
-      color: #4a5568;
-      margin-bottom: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .history-items {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .history-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 6px 9px;
-      background: #f7fafc;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.15s;
-      font-size: 12px;
-    }
-
-    .history-item:hover {
-      background: #edf2f7;
-      transform: translateX(2px);
-    }
-
-    .history-item-content {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex: 1;
-    }
-
-    .history-flag {
-      font-size: 16px;
-    }
-
-    .history-name {
-      color: #2d3748;
-      font-weight: 500;
-    }
-
-    .favorite-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 16px;
-      padding: 4px;
-      opacity: 0.4;
-      transition: all 0.2s;
-      width: auto;
-      transform: none;
-      box-shadow: none;
-    }
-
-    .favorite-btn:hover {
-      opacity: 1;
-      transform: scale(1.2);
-    }
-
-    .favorite-btn.active {
-      opacity: 1;
-    }
-
-    .toggle-container {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 9px;
-      background: #f7fafc;
-      border-radius: 6px;
-      margin-bottom: 14px;
-    }
-
-    .toggle-label {
-      font-size: 13px;
-      font-weight: 500;
-      color: #2d3748;
-    }
-
-    .toggle-switch {
-      position: relative;
-      width: 48px;
-      height: 24px;
-    }
-
-    .toggle-switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .toggle-slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #cbd5e0;
-      transition: 0.3s;
-      border-radius: 24px;
-    }
-
-    .toggle-slider:before {
-      position: absolute;
-      content: "";
-      height: 18px;
-      width: 18px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
-      transition: 0.3s;
-      border-radius: 50%;
-    }
-
-    .toggle-switch input:checked + .toggle-slider {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-
-    .toggle-switch input:checked + .toggle-slider:before {
-      transform: translateX(24px);
-    }
-
-    .settings-btn {
-      background: #edf2f7;
-      color: #4a5568;
-      padding: 10px;
-      margin-top: 8px;
-      font-size: 13px;
-    }
-
-    .settings-btn:hover {
-      background: #e2e8f0;
-    }
-
-    .toast {
-      position: fixed;
-      bottom: 12px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #2d3748;
-      color: #fff;
-      padding: 8px 16px;
-      border-radius: 6px;
-      font-size: 12px;
-      z-index: 9999;
-      animation: toastIn 0.3s ease-out;
-      white-space: nowrap;
-    }
-
-    @keyframes toastIn {
-      from { opacity: 0; transform: translateX(-50%) translateY(10px); }
-      to { opacity: 1; transform: translateX(-50%) translateY(0); }
-    }
-
-    .dropdown-fav-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 14px;
-      padding: 2px 4px;
-      opacity: 0.3;
-      transition: all 0.2s;
-      width: auto;
-      transform: none;
-      box-shadow: none;
-      margin-left: auto;
-    }
-
-    .dropdown-fav-btn:hover {
-      opacity: 1;
-      transform: scale(1.2);
-    }
-
-    .dropdown-fav-btn.active {
-      opacity: 1;
-    }
-
-    .dropdown-item {
-      padding: 9px 12px;
-      cursor: pointer;
-      color: #2d3748;
-      font-size: 13px;
-      transition: background 0.15s;
-      border-bottom: 1px solid #f7fafc;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-    }
-
-    .reset-btn {
-      width: 100%;
-      padding: 8px;
-      background: #edf2f7;
-      color: #718096;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 500;
-      transition: all 0.2s;
-      margin-top: 8px;
-      box-shadow: none;
-    }
-
-    .reset-btn:hover {
-      background: #e2e8f0;
-      color: #4a5568;
-      transform: none;
-    }
-
-    .whitelist-section {
-      display: none;
-      margin-top: 16px;
-      padding: 16px;
-      background: #f7fafc;
-      border-radius: 8px;
-    }
-
-    .whitelist-section.show {
-      display: block;
-    }
-
-    .whitelist-input {
-      width: 100%;
-      padding: 8px 12px;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      font-size: 12px;
-      margin-bottom: 8px;
-    }
-
-    .whitelist-list {
-      max-height: 100px;
-      overflow-y: auto;
-      font-size: 12px;
-    }
-
-    .whitelist-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 4px 8px;
-      margin-bottom: 4px;
-      background: white;
-      border-radius: 4px;
-    }
-
-    .remove-btn {
-      background: none;
-      border: none;
-      color: #e53e3e;
-      cursor: pointer;
-      padding: 2px 6px;
-      font-size: 12px;
-      width: auto;
-      transform: none;
-      box-shadow: none;
-    }
-
-    .tabs {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 12px;
-      border-bottom: 2px solid #e2e8f0;
-    }
-
-    .tab {
-      padding: 6px 12px;
-      background: none;
-      border: none;
-      color: #718096;
-      cursor: pointer;
-      font-size: 12px;
-      font-weight: 500;
-      border-bottom: 2px solid transparent;
-      margin-bottom: -2px;
-      transition: all 0.2s;
-      width: auto;
-      transform: none;
-      box-shadow: none;
-    }
-
-    .tab:hover {
-      color: #4a5568;
-    }
-
-    .tab.active {
-      color: #667eea;
-      border-bottom-color: #667eea;
-    }
-
-    .tab-content {
-      display: none;
-    }
-
-    .tab-content.active {
-      display: block;
-    }
-  </style>
+  <link rel="stylesheet" href="popup.css">
 </head>
 <body>
   <div class="container">
-    <h1>HennyClever</h1>
-    <div class="subtitle">
-      <span class="status-indicator" id="statusIndicator"></span>
-      Spoof your location on Google
-    </div>
+    <header class="brand-header">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="10" stroke="currentColor" stroke-width="1.4"/><path d="M16 2v6m0 16v6M2 16h6m16 0h6" stroke="currentColor" stroke-width="1.4"/><path d="m20 12-2.2 5.8L12 20l2.2-5.8L20 12Z" fill="currentColor"/></svg>
+      </div>
+      <div><h1>HennyClever</h1><div class="subtitle">A different point of view.</div></div>
+      <span class="brand-caption">LOCATION<br>TOOLKIT</span>
+    </header>
 
     <div class="toggle-container">
-      <span class="toggle-label">Enable Spoofing</span>
+      <span class="toggle-label"><span class="status-indicator" id="statusIndicator"></span>Location override</span>
       <label class="toggle-switch">
-        <input type="checkbox" id="enableToggle" checked>
+        <input type="checkbox" id="enableToggle" aria-label="Enable location override" checked>
         <span class="toggle-slider"></span>
       </label>
     </div>
 
     <div class="tabs">
-      <button class="tab active" data-tab="location">Location</button>
-      <button class="tab" data-tab="settings">Settings</button>
+      <button class="tab active" data-tab="location"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M15.5 8.3c0 4-5.5 8.2-5.5 8.2S4.5 12.3 4.5 8.3a5.5 5.5 0 1 1 11 0Z"/><circle cx="10" cy="8" r="1.8"/></svg>Location</button>
+      <button class="tab" data-tab="settings"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 4v12m6-12v12m6-12v12M2 7h4m2 6h4m2-5h4"/></svg>Settings</button>
     </div>
 
     <div class="tab-content active" id="location-tab">
       <div class="current-selection" id="currentSelection">
-        Currently: <strong id="currentLocationText">None</strong>
-      </div>
-
-      <div class="history-section" id="historySection" style="display: none;">
-        <div class="history-header">
-          <span>⭐ Favorites & Recent</span>
-        </div>
-        <div class="history-items" id="historyItems"></div>
+        <span class="selection-caption">Selected location</span><strong id="currentLocationText">None</strong>
       </div>
 
       <div class="input-group">
         <label for="countrySearch">
-          Search Country
+          Choose location
           <span class="info-icon" title="Type to filter countries, use arrow keys to navigate">?</span>
         </label>
-        <div class="search-wrapper">
+        <div class="search-wrapper"><svg class="search-icon" viewBox="0 0 20 20" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5"/><path d="m13 13 4 4"/></svg>
           <input
             type="text"
             id="countrySearch"
-            placeholder="Type country name..."
+            placeholder="Search country or capital…" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="dropdown"
             autocomplete="off"
           >
-          <div class="dropdown" id="dropdown"></div>
+          <div class="dropdown" id="dropdown" role="listbox" aria-label="Locations"></div>
         </div>
       </div>
 
@@ -626,14 +56,21 @@
         </select>
       </div>
 
-      <button id="saveBtn" disabled>Save Location</button>
-      <button id="resetLocationBtn" class="reset-btn">Use Real Location</button>
+      <div id="saveStatus" role="status" aria-live="polite">Choose a location to apply it automatically.</div><button id="saveBtn" hidden disabled>Retry</button>
+      <div class="history-section" id="historySection" style="display: none;">
+        <div class="history-header">
+          <span>Favorites & recent</span>
+        </div>
+        <div class="history-items" id="historyItems"></div>
+      </div>
+
+      <button id="resetLocationBtn" class="reset-btn"><span aria-hidden="true">↺</span> Reset location</button>
     </div>
 
     <div class="tab-content" id="settings-tab">
       <div class="input-group">
-        <label>Whitelist Mode</label>
-        <div style="font-size: 12px; color: #718096; margin-bottom: 8px;">
+        <label>Allowed websites</label>
+        <div class="settings-description">
           Add domains where spoofing should work (www.google.com is always included).
           For non-.com Google TLDs (google.de, google.co.uk, etc.) add them here for SERP spoofing.
         </div>
@@ -647,12 +84,12 @@
         <div class="whitelist-list" id="whitelistList"></div>
       </div>
 
-      <div class="input-group" style="margin-top: 16px; padding-top: 12px; border-top: 1px solid #e2e8f0;">
+      <div class="input-group settings-language">
         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
           <input type="checkbox" id="allSitesToggle" style="width: auto; margin: 0;">
-          <span>Modify Accept-Language on all sites</span>
+          <span>Set request language on allowed sites</span>
         </label>
-        <div style="font-size: 11px; color: #a0aec0; margin-top: 6px; line-height: 1.4;">
+        <div class="settings-description settings-note">
           By default, only Google SERP params (gl, hl, uule) are spoofed.
           Enable this to also modify the Accept-Language HTTP header on Google + whitelisted domains — useful for testing hreflang variants.
         </div>
@@ -660,9 +97,9 @@
     </div>
 
     <div class="footer">
-      <div class="footer-text">Enjoying HennyClever?</div>
+      <div class="footer-text">Browser location only · Does not change your IP</div>
       <a href="https://buymeacoffee.com/hennywill" target="_blank" class="coffee-link">
-        ☕ Buy me a coffee
+        Support the project <span aria-hidden="true">↗</span>
       </a>
     </div>
   </div>

@@ -62,6 +62,7 @@ async function initNewFeatures() {
     allSitesToggle.checked = data.allSitesMode === true;
   }
 
+  updateStatusIndicator(enableToggle.checked);
   renderHistory();
   renderWhitelist();
   setupEventListeners();
@@ -121,7 +122,9 @@ function setupEventListeners() {
 }
 
 function updateStatusIndicator(enabled) {
-  statusIndicator.style.background = enabled ? '#48bb78' : '#cbd5e0';
+  const active = enabled && !!selectedCapital;
+  statusIndicator.style.background = active ? '#39815b' : '#a3aaa5';
+  statusIndicator.title = active ? 'Location override enabled' : 'Location override inactive';
 }
 
 // Toast notification
@@ -138,6 +141,7 @@ function showToast(message) {
 
 // Reset to real location
 async function resetLocation() {
+  await saveQueue;
   await chrome.storage.local.remove([
     'selectedCapital', 'selectedLanguage', 'selectedCountry',
     'selectedCountryCode'
@@ -150,11 +154,14 @@ async function resetLocation() {
   currentSelection.classList.remove('show');
   currentLocationText.textContent = 'None';
   saveBtn.disabled = true;
+  document.getElementById('saveStatus').textContent = 'Using browser location after page reload.';
+  statusIndicator.style.background = '#a3aaa5';
 
   showToast('Location reset. Reload tabs to use real location.');
 }
 
 function handleKeyboard(e) {
+  if (e.key === 'Escape') { dropdown.classList.remove('show'); searchInput.setAttribute('aria-expanded', 'false'); return; }
   const items = dropdown.querySelectorAll('.dropdown-item');
   if (!dropdown.classList.contains('show') || items.length === 0) return;
 
@@ -168,8 +175,8 @@ function handleKeyboard(e) {
     updateDropdownSelection(items);
   } else if (e.key === 'Enter') {
     e.preventDefault();
-    if (dropdownSelectedIndex >= 0) {
-      const countryName = items[dropdownSelectedIndex].getAttribute('data-country');
+    if (dropdownSelectedIndex >= 0 || items.length === 1) {
+      const countryName = items[Math.max(0, dropdownSelectedIndex)].getAttribute('data-country');
       selectCountry(countryName);
     }
   }
@@ -179,6 +186,7 @@ function updateDropdownSelection(items) {
   items.forEach((item, index) => {
     if (index === dropdownSelectedIndex) {
       item.classList.add('selected');
+      searchInput.setAttribute('aria-activedescendant', item.id);
       item.scrollIntoView({ block: 'nearest' });
     } else {
       item.classList.remove('selected');
@@ -221,7 +229,8 @@ async function toggleFavorite(country) {
 function renderHistory() {
   const favoriteItems = locationHistory.filter(item => favorites.includes(item.country));
   const recentItems = locationHistory.filter(item => !favorites.includes(item.country));
-  const allItems = [...favoriteItems, ...recentItems];
+  const savedFavorites = capitals.filter(c => favorites.includes(c.country) && !locationHistory.some(h => h.country === c.country));
+  const allItems = [...savedFavorites, ...favoriteItems, ...recentItems];
 
   if (allItems.length === 0) {
     historySection.style.display = 'none';
@@ -255,7 +264,8 @@ function renderHistory() {
 
     const favBtn = document.createElement('button');
     favBtn.className = 'favorite-btn' + (isFav ? ' active' : '');
-    favBtn.textContent = isFav ? '⭐' : '☆';
+    favBtn.textContent = isFav ? '★' : '☆';
+    favBtn.setAttribute('aria-label', 'Favorite ' + item.country);
     favBtn.addEventListener('click', (e) => {
       e.stopPropagation();
       toggleFavorite(item.country);
@@ -314,7 +324,7 @@ function renderWhitelist() {
 
   if (whitelist.length === 0) {
     const empty = document.createElement('div');
-    empty.style.cssText = 'color: #a0aec0; padding: 8px;';
+    empty.className = 'empty-whitelist';
     empty.textContent = 'No domains added';
     whitelistList.appendChild(empty);
     return;
@@ -346,21 +356,15 @@ function renderWhitelist() {
   });
 }
 
-// Enhance save with animation
 const originalSave = handleSave;
-handleSave = async function() {
-  if (!selectedCapital) return;
-
-  saveBtn.textContent = '✓ Saved!';
-  saveBtn.classList.add('save-success');
-
-  await addToHistory(selectedCapital);
-  await originalSave();
-
-  setTimeout(() => {
-    saveBtn.textContent = 'Save Location';
-    saveBtn.classList.remove('save-success');
-  }, 500);
+let saveQueue = Promise.resolve();
+handleSave = function() {
+  saveQueue = saveQueue.then(async () => {
+    if (!selectedCapital) return;
+    await originalSave();
+    await addToHistory(selectedCapital);
+  }).catch(() => showToast('Unable to save location. Please retry.'));
+  return saveQueue;
 };
 
 // Init on load

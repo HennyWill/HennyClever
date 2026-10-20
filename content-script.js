@@ -2,18 +2,24 @@
 // Injects override script once, then dispatches coords (may run multiple times)
 
 (async function() {
+  const state = await chrome.storage.local.get(['selectedCapital', 'spoofingEnabled']);
+  if (state.spoofingEnabled === false || !state.selectedCapital) {
+    window.dispatchEvent(new CustomEvent('HennyCleverDisable'));
+    return;
+  }
   // Inject override script only once per page
   if (!window.__hennyCleverInjected) {
     window.__hennyCleverInjected = true;
 
     const script = document.createElement('script');
     script.src = chrome.runtime.getURL('inject.js');
-    (document.head || document.documentElement).appendChild(script);
+
 
     // Wait for inject.js to load before dispatching
     await new Promise(resolve => {
       script.onload = () => { script.remove(); resolve(); };
-      script.onerror = () => resolve();
+      script.onerror = () => { window.__hennyCleverInjected = false; script.remove(); resolve(); };
+      (document.head || document.documentElement).appendChild(script);
     });
   }
 
